@@ -12,13 +12,13 @@ Este repositorio contiene un script de Python para descargar videos o playlists 
 
 1. Clona este repositorio:
     ```sh
-    git clone https://github.com/tu_usuario/youtube-downloader.git
+    git clone https://github.com/MkBadKarma/YouTubeDownloader.git
     cd youtube-downloader
     ```
 
 2. Ejecuta el script para instalar los paquetes necesarios:
     ```sh
-    python script.py
+    python youtubeDownloader.py
     ```
 
 ## Uso
@@ -37,7 +37,7 @@ Este repositorio contiene un script de Python para descargar videos o playlists 
 
 1. **Verificación e instalación de paquetes**: El script verifica si los paquetes `rich`, `questionary`, `yt_dlp` y `PyQt5` están instalados. Si no lo están, los instala automáticamente.
 
-2. **Verificación de FFmpeg**: Comprueba si FFmpeg está instalado en el sistema. Si no lo está, ofrece instalarlo utilizando `winget`.
+2. **Verificación de FFmpeg(Solo si tienes windows)**: Comprueba si FFmpeg está instalado en el sistema. Si no lo está, ofrece instalarlo utilizando `winget`.
 
 3. **Interfaz de usuario**: Utiliza `questionary` para solicitar al usuario la URL del video, el formato de descarga y la carpeta de destino. `PyQt5` se utiliza para seleccionar la carpeta de destino.
 
