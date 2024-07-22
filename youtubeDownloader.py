@@ -1,13 +1,37 @@
+import subprocess
+import sys
+import importlib
+
+def instalar_paquete(paquete):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", paquete])
+
+def verificar_paquetes(paquetes):
+    for nombre_modulo, nombre_paquete in paquetes:
+        try:
+            importlib.import_module(nombre_modulo)
+        except ImportError:
+            print(f"{nombre_modulo} no está instalado. Instalando...")
+            instalar_paquete(nombre_paquete)
+
+# Lista de paquetes necesarios
+paquetes = [
+    ("rich", "rich"),
+    ("questionary", "questionary"),
+    ("yt_dlp", "yt-dlp"),
+    ("PyQt5", "PyQt5")
+]
+
+# Verificar e instalar paquetes necesarios
+verificar_paquetes(paquetes)
+
+# Ahora que los paquetes están verificados e instalados, podemos importarlos
 from rich.console import Console
 from rich.panel import Panel
 import questionary
 import yt_dlp as youtube_dl
-import subprocess
 from PyQt5.QtWidgets import QApplication, QFileDialog, QDialog
 from PyQt5.QtCore import Qt
 import os
-import sys
-import importlib
 
 console = Console()
 
@@ -30,17 +54,6 @@ def install_ffmpeg():
     else:
         console.print("No se puede continuar sin FFmpeg. Por favor, instálalo y vuelve a intentarlo.", style="bold red")
         sys.exit(1)
-
-def instalar_paquete(paquete):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", paquete])
-
-def verificar_paquetes(paquetes):
-    for nombre_modulo, nombre_paquete in paquetes:
-        try:
-            importlib.import_module(nombre_modulo)
-        except ImportError:
-            console.print(f"{nombre_modulo} no está instalado. Instalando...", style="bold yellow")
-            instalar_paquete(nombre_paquete)
 
 def get_url():
     url = questionary.text("Ingrese la URL del video o playlist (debe comenzar con http:// o https://):").ask().strip()
@@ -111,11 +124,4 @@ def download_video_or_playlist():
         console.print(f"Se produjo un error: {e}", style="bold red")
 
 if __name__ == "__main__":
-    paquetes = [
-        ("rich", "rich"),
-        ("questionary", "questionary"),
-        ("yt_dlp", "yt-dlp"),
-        ("PyQt5", "PyQt5")
-    ]
-    verificar_paquetes(paquetes)
     download_video_or_playlist()
