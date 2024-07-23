@@ -4,6 +4,9 @@ import subprocess
 import sys
 import importlib
 import platform
+from rich.console import Console
+
+console = Console()
 
 def install_package(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
@@ -15,13 +18,14 @@ def check_packages(packages):
             importlib.import_module(module_name)
         except ImportError:
             missing_modules += 1
-            print(f"{module_name} is not installed. Installing...")
+            console.print(f"{module_name} is not installed. Installing...", style="bold yellow")
             install_package(package_name)
 
-    console.print(f"Missing modules ({missing_modules}) installed (restart the script).", style="bold green")
-    exit(1)
+    if missing_modules > 0:
+        console.print(f"Missing modules ({missing_modules}) installed. Please restart the script.", style="bold green")
+        exit(1)
 
-# List of necessary packages
+# Lista de paquetes necesarios
 packages = [
     ("rich", "rich"),
     ("questionary", "questionary"),
@@ -29,19 +33,16 @@ packages = [
     ("PyQt5", "PyQt5")
 ]
 
-# Check and install necessary packages
+# Comprobar e instalar paquetes necesarios
 check_packages(packages)
 
-# Now that the packages are checked and installed, we can import them
-from rich.console import Console
+# Ahora que los paquetes están verificados e instalados, podemos importarlos
 from rich.panel import Panel
+import argparse
 import questionary
 import yt_dlp as youtube_dl
 from PyQt5.QtWidgets import QApplication, QFileDialog, QDialog
 from PyQt5.QtCore import Qt
-import os
-
-console = Console()
 
 def check_ffmpeg_installed():
     return shutil.which("ffmpeg") is not None
@@ -109,7 +110,7 @@ def progress_hook(d):
     if d['status'] == 'finished':
         console.print(f"\rDownload completed: {d['filename']}", style="bold green")
 
-def download_video_or_playlist():
+def download_video_or_playlist(url=None, format_choice=None):
     if not check_ffmpeg_installed():
         install_ffmpeg()
 
@@ -117,13 +118,15 @@ def download_video_or_playlist():
     dialog = QDialog()
     dialog.setWindowFlags(dialog.windowFlags() | Qt.WindowStaysOnTopHint)
 
-    url = get_url()
     if not url:
-        return
+        url = get_url()
+        if not url:
+            return
 
-    format_choice = get_format_choice()
     if not format_choice:
-        return
+        format_choice = get_format_choice()
+        if not format_choice:
+            return
 
     target_dir = get_target_directory(dialog)
     if not target_dir:
@@ -152,4 +155,18 @@ def download_video_or_playlist():
         console.print(f"An error occurred: {e}", style="bold red")
 
 if __name__ == "__main__":
-    download_video_or_playlist()
+    parser = argparse.ArgumentParser(description="Download videos or playlists from YouTube in the specified format.")
+    parser.add_argument('-f', '--format', choices=['mp3', 'mp4'], help="Specify the format for download (mp3 or mp4).")
+    parser.add_argument('url', nargs='?', help="The URL of the video or playlist to download.")
+    args = parser.parse_args()
+
+    if args.url and args.format:
+        download_video_or_playlist(args.url, args.format)
+    else:
+        url = get_url()
+        if not url:
+            sys.exit(1)
+        format_choice = get_format_choice()
+        if not format_choice:
+            sys.exit(1)
+        download_video_or_playlist(url, format_choice)
