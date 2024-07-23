@@ -30,21 +30,31 @@ This repository contains a Python script to download videos or playlists from Yo
 
 ## Usage
 
-1. Run the script:
+1. **Run the script**:
     ```sh
     python youtubeDownloader.py
     ```
 
-2. Follow the terminal instructions to:
+2. **Arguments**:
+    - `-f` or `--format` (optional): Specify the format for download. Choices are `mp3` or `mp4`.
+    - `url`: The URL of the YouTube video or playlist to download.
+
+    Example usage:
+    ```sh
+    python youtubeDownloader.py -f mp4 https://www.youtube.com/watch?v=dQw4w9WgXcQ
+    ```
+    This command downloads the specified video in `mp4` format.
+
+3. **Follow the terminal instructions** to:
     - Enter the URL of the YouTube video or playlist.
-    - Select the download format (mp3 or mp4).
+    - Select the download format (mp3 or mp4) if not provided as an argument.
     - Choose the destination folder to save the downloaded file.
 
 ## Script Functionality
 
 1. **Package Verification and Installation**: The script checks if `rich`, `questionary`, `yt_dlp`, and `PyQt5` packages are installed. If not, it installs them automatically.
 
-2. **FFmpeg Verification and Installation**: 
+2. **FFmpeg Verification and Installation**:
    - **Windows**: Checks if FFmpeg is installed. If not, offers to install it using `winget`.
    - **Linux**: Checks if FFmpeg is installed. If not, offers to install it using `apt` for Debian-based distributions or `pacman` for Arch-based distributions.
 
@@ -60,6 +70,6 @@ This repository contains a Python script to download videos or playlists from Yo
 - [PyQt5](https://pypi.org/project/PyQt5/): For the graphical folder selection interface.
 
 These dependencies can be installed with `pip install -r piprequirements.txt`
-## Contributions
 
+## Contributions
 Contributions are welcome. Please open an issue or submit a pull request to contribute to this project.
