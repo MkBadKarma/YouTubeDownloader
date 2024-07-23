@@ -59,6 +59,7 @@ This repository contains a Python script to download videos or playlists from Yo
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp): For downloading YouTube videos.
 - [PyQt5](https://pypi.org/project/PyQt5/): For the graphical folder selection interface.
 
+These dependencies can be installed with `pip install -r piprequirements.txt`
 ## Contributions
 
 Contributions are welcome. Please open an issue or submit a pull request to contribute to this project.
