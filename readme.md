@@ -1,6 +1,13 @@
 # YouTube Downloader
 
-This repository contains a Python script to download videos or playlists from YouTube, with the option to choose between mp3 and mp4 formats. The script automatically checks and installs necessary packages and ensures FFmpeg is installed on the system if running on Windows.
+This repository contains a Python script to download videos or playlists from YouTube, with the option to choose between mp3 and mp4 formats. The script automatically checks and installs necessary packages and ensures FFmpeg is installed on the system.
+
+## Supported Platforms
+
+- **Windows**
+- **Linux**:
+  - Debian-based distributions (e.g., Ubuntu)
+  - Arch-based distributions (e.g., Manjaro)
 
 ## Requirements
 
@@ -37,7 +44,9 @@ This repository contains a Python script to download videos or playlists from Yo
 
 1. **Package Verification and Installation**: The script checks if `rich`, `questionary`, `yt_dlp`, and `PyQt5` packages are installed. If not, it installs them automatically.
 
-2. **FFmpeg Verification (Windows only)**: Checks if FFmpeg is installed on the system. If not, it offers to install it using `winget`.
+2. **FFmpeg Verification and Installation**: 
+   - **Windows**: Checks if FFmpeg is installed. If not, offers to install it using `winget`.
+   - **Linux**: Checks if FFmpeg is installed. If not, offers to install it using `apt` for Debian-based distributions or `pacman` for Arch-based distributions.
 
 3. **User Interface**: Uses `questionary` to prompt the user for the video URL, download format, and destination folder. `PyQt5` is used for selecting the destination folder.
 
