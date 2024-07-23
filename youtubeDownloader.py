@@ -1,17 +1,25 @@
+import os
+import shutil
 import subprocess
 import sys
 import importlib
+import platform
 
 def install_package(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 def check_packages(packages):
+    missing_modules = 0
     for module_name, package_name in packages:
         try:
             importlib.import_module(module_name)
         except ImportError:
+            missing_modules += 1
             print(f"{module_name} is not installed. Installing...")
             install_package(package_name)
+
+    console.print(f"Missing modules ({missing_modules}) installed (restart the script).", style="bold green")
+    exit(1)
 
 # List of necessary packages
 packages = [
@@ -36,18 +44,38 @@ import os
 console = Console()
 
 def check_ffmpeg_installed():
-    try:
-        subprocess.run(["ffmpeg", "-version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False
+    return shutil.which("ffmpeg") is not None
+
+def get_lin_distro():
+    if shutil.which("apt"):
+        return "debian"
+    elif shutil.which("pacman"):
+        return "arch"
+    return None
 
 def install_ffmpeg():
     console.print(Panel("FFmpeg is not installed.", title="Installation Required", title_align="left", border_style="bold red"))
+    command = []
+    
+    if platform.system() == "Windows":
+        command = ["winget", "install", "--id=Gyan.FFmpeg", "-e"]
+    elif platform.system() == "Linux":
+        match get_lin_distro():
+            case "debian":
+                command = ["sudo", "apt", "install", "ffmpeg"]
+            case "arch":
+                command = ["sudo", "pacman", "-S", "ffmpeg"]
+            case _:
+                console.print("This script doesn't support your current GNU/Linux distribution. You have to install ffmpeg manually to continue.", style="bold red")
+                return
+    else:
+        console.print(f"This script doesn't support your current platform ({platform.system()}). You have to install ffmpeg manually to continue.", style="bold red")
+        return
+    
     if questionary.confirm("Do you want to install FFmpeg now?").ask():
-        console.print("Installing FFmpeg...", style="bold yellow")
-        if subprocess.run(["winget", "install", "--id=Gyan.FFmpeg", "-e"]).returncode == 0:
-            console.print("Please restart the application or terminal for the changes to take effect.", style="bold green")
+        console.print(f"Installing FFmpeg with the following command: '{command}'...", style="bold yellow")
+        if subprocess.run(command).returncode == 0:
+            console.print("Please restart the application or terminal for the changes to take effect (Windows only).", style="bold green")
         else:
             console.print("FFmpeg installation failed. Please install it manually.", style="bold red")
         sys.exit(0)
