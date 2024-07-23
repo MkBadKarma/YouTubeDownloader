@@ -1,0 +1,4 @@
+rich
+questionary
+PyQt5
+yt-dlp
