@@ -1,55 +1,55 @@
 # YouTube Downloader
 
-Este repositorio contiene un script de Python para descargar videos o playlists de YouTube, con la opción de elegir entre formatos mp3 y mp4. El script verifica e instala automáticamente los paquetes necesarios y se asegura de que FFmpeg esté instalado en el sistema en caso de usar Windows.
+This repository contains a Python script to download videos or playlists from YouTube, with the option to choose between mp3 and mp4 formats. The script automatically checks and installs necessary packages and ensures FFmpeg is installed on the system if running on Windows.
 
-## Requisitos
+## Requirements
 
-- Python 3.6 o superior
+- Python 3.6 or higher
 - [pip](https://pip.pypa.io/en/stable/installation/)
-- [winget](https://github.com/microsoft/winget-cli) (solo para Windows, utilizado para instalar FFmpeg)
+- [winget](https://github.com/microsoft/winget-cli) (Windows only, used to install FFmpeg)
 
-## Instalación
+## Installation
 
-1. Clona este repositorio:
+1. Clone this repository:
     ```sh
     git clone https://github.com/MkBadKarma/YouTubeDownloader.git
-    cd youtube-downloader
+    cd YouTubeDownloader
     ```
 
-2. Ejecuta el script para instalar los paquetes necesarios:
+2. Run the script to install the necessary packages:
     ```sh
     python youtubeDownloader.py
     ```
 
-## Uso
+## Usage
 
-1. Ejecuta el script:
+1. Run the script:
     ```sh
     python youtubeDownloader.py
     ```
 
-2. Sigue las instrucciones en la terminal para:
-    - Ingresar la URL del video o playlist de YouTube.
-    - Seleccionar el formato de descarga (mp3 o mp4).
-    - Seleccionar la carpeta de destino para guardar el archivo descargado.
+2. Follow the terminal instructions to:
+    - Enter the URL of the YouTube video or playlist.
+    - Select the download format (mp3 or mp4).
+    - Choose the destination folder to save the downloaded file.
 
-## Funcionamiento del Script
+## Script Functionality
 
-1. **Verificación e instalación de paquetes**: El script verifica si los paquetes `rich`, `questionary`, `yt_dlp` y `PyQt5` están instalados. Si no lo están, los instala automáticamente.
+1. **Package Verification and Installation**: The script checks if `rich`, `questionary`, `yt_dlp`, and `PyQt5` packages are installed. If not, it installs them automatically.
 
-2. **Verificación de FFmpeg(Solo si tienes windows)**: Comprueba si FFmpeg está instalado en el sistema. Si no lo está, ofrece instalarlo utilizando `winget`.
+2. **FFmpeg Verification (Windows only)**: Checks if FFmpeg is installed on the system. If not, it offers to install it using `winget`.
 
-3. **Interfaz de usuario**: Utiliza `questionary` para solicitar al usuario la URL del video, el formato de descarga y la carpeta de destino. `PyQt5` se utiliza para seleccionar la carpeta de destino.
+3. **User Interface**: Uses `questionary` to prompt the user for the video URL, download format, and destination folder. `PyQt5` is used for selecting the destination folder.
 
-4. **Descarga del video**: Utiliza `yt_dlp` para descargar el video o playlist en el formato seleccionado, mostrando el progreso de la descarga en la terminal.
+4. **Video Download**: Utilizes `yt_dlp` to download the video or playlist in the selected format, showing the download progress in the terminal.
 
-## Dependencias
+## Dependencies
 
-- [rich](https://github.com/Textualize/rich): Para una salida formateada en la terminal.
-- [questionary](https://github.com/tmbo/questionary): Para crear prompts interactivos en la terminal.
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp): Para descargar videos de YouTube.
-- [PyQt5](https://pypi.org/project/PyQt5/): Para la interfaz gráfica de selección de carpeta.
+- [rich](https://github.com/Textualize/rich): For formatted terminal output.
+- [questionary](https://github.com/tmbo/questionary): For creating interactive prompts in the terminal.
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp): For downloading YouTube videos.
+- [PyQt5](https://pypi.org/project/PyQt5/): For the graphical folder selection interface.
 
-## Contribuciones
+## Contributions
 
-Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request para contribuir a este proyecto.
+Contributions are welcome. Please open an issue or submit a pull request to contribute to this project.
