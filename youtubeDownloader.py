@@ -79,10 +79,10 @@ def install_ffmpeg():
             console.print("Please restart the application or terminal for the changes to take effect (Windows only).", style="bold green")
         else:
             console.print("FFmpeg installation failed. Please install it manually.", style="bold red")
-        sys.exit(0)
+        exit(0)
     else:
         console.print("Cannot continue without FFmpeg. Please install it and try again.", style="bold red")
-        sys.exit(1)
+        exit(1)
 
 def get_url():
     url = questionary.text("Enter the video or playlist URL (must start with http:// or https://):").ask().strip()
@@ -108,9 +108,9 @@ def get_target_directory(dialog):
 
 def progress_hook(d):
     if d['status'] == 'finished':
-        console.print(f"\rDownload completed: {d['filename']}", style="bold green")
+        console.print(f"\nDownload completed: {d['filename']}", style="bold green")
 
-def download_video_or_playlist(url=None, format_choice=None):
+def download_video_or_playlist(url=None, format_choice=None, output_path=None):
     if not check_ffmpeg_installed():
         install_ffmpeg()
 
@@ -128,11 +128,17 @@ def download_video_or_playlist(url=None, format_choice=None):
         if not format_choice:
             return
 
-    target_dir = get_target_directory(dialog)
-    if not target_dir:
-        return
+    
+    outtmpl = ""
+    if output_path:
+        outtmpl = output_path 
 
-    outtmpl = os.path.join(target_dir, '%(title)s.%(ext)s')
+    else:
+        target_dir = get_target_directory(dialog)
+        if not target_dir:
+            return
+        outtmpl = os.path.join(target_dir, '%(title)s.%(ext)s')
+
     ydl_opts = {
         'format': 'bestvideo+bestaudio/best' if format_choice == 'mp4' else 'bestaudio/best',
         'outtmpl': outtmpl,
@@ -158,15 +164,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download videos or playlists from YouTube in the specified format.")
     parser.add_argument('-f', '--format', choices=['mp3', 'mp4'], help="Specify the format for download (mp3 or mp4).")
     parser.add_argument('url', nargs='?', help="The URL of the video or playlist to download.")
+    parser.add_argument("-o", "--output", default=None, help="Path in where to write the output.")
     args = parser.parse_args()
 
     if args.url and args.format:
-        download_video_or_playlist(args.url, args.format)
+        download_video_or_playlist(args.url, args.format, args.output)
     else:
         url = get_url()
         if not url:
-            sys.exit(1)
+            exit(1)
         format_choice = get_format_choice()
         if not format_choice:
-            sys.exit(1)
+            exit(1)
         download_video_or_playlist(url, format_choice)
