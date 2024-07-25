@@ -37,6 +37,8 @@ This repository contains a Python script to download videos or playlists from Yo
 
 2. **Arguments**:
     - `-f` or `--format` (optional): Specify the format for download. Choices are `mp3` or `mp4`.
+    - `-q` or `--quality` (optional): Specify the video quality. Available options: `144p`, `240p`, `360p`, `480p`, `720p`, `1080p`, `1440p`, `2160p`(If the selected quality is not available, the script will show you the available options).
+    - `-o` or `--output` (optional): Path where to save the output.
     - `url`: The URL of the YouTube video or playlist to download.
 
     Example usage:
