@@ -5,10 +5,12 @@ import sys
 import importlib
 import platform
 from rich.console import Console
+from flags import parse_args  # Import the flags defined in flags.py
 
 console = Console()
 
 def install_package(package):
+    # Install a Python package using pip
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 def check_packages(packages):
@@ -25,7 +27,7 @@ def check_packages(packages):
         console.print(f"Missing modules ({missing_modules}) installed. Please restart the script.", style="bold green")
         exit(1)
 
-# Lista de paquetes necesarios
+# List of required packages
 packages = [
     ("rich", "rich"),
     ("questionary", "questionary"),
@@ -33,21 +35,22 @@ packages = [
     ("PyQt5", "PyQt5")
 ]
 
-# Comprobar e instalar paquetes necesarios
+# Check and install required packages
 check_packages(packages)
 
-# Ahora que los paquetes están verificados e instalados, podemos importarlos
+# Now that the packages are verified and installed, we can import them
 from rich.panel import Panel
-import argparse
 import questionary
 import yt_dlp as youtube_dl
 from PyQt5.QtWidgets import QApplication, QFileDialog, QDialog
 from PyQt5.QtCore import Qt
 
 def check_ffmpeg_installed():
+    # Check if FFmpeg is installed
     return shutil.which("ffmpeg") is not None
 
 def get_lin_distro():
+    # Determine the Linux distribution
     if shutil.which("apt"):
         return "debian"
     elif shutil.which("pacman"):
@@ -59,8 +62,10 @@ def install_ffmpeg():
     command = []
     
     if platform.system() == "Windows":
+        # Command to install FFmpeg on Windows
         command = ["winget", "install", "--id=Gyan.FFmpeg", "-e"]
     elif platform.system() == "Linux":
+        # Command to install FFmpeg on Linux
         match get_lin_distro():
             case "debian":
                 command = ["sudo", "apt", "install", "ffmpeg"]
@@ -85,6 +90,7 @@ def install_ffmpeg():
         exit(1)
 
 def get_url():
+    # Prompt the user for the video or playlist URL
     url = questionary.text("Enter the video or playlist URL (must start with http:// or https://):").ask().strip()
     if not url.startswith(('http://', 'https://')):
         console.print("Invalid URL. It must start with http:// or https://.", style="bold red")
@@ -92,13 +98,23 @@ def get_url():
     return url
 
 def get_format_choice():
+    # Prompt the user for the desired download format
     format_choice = questionary.select("What format do you want for the downloaded file?", choices=["mp3", "mp4"]).ask()
     if not format_choice:
         console.print("No format selected. The download will not continue.", style="bold red")
         return None
     return format_choice
 
+def get_quality_choice():
+    # Prompt the user for the desired download quality
+    quality_choice = questionary.select("What quality do you want for the downloaded file?", choices=["144p", "240p", "360p", "480p", "720p", "1080p", "1440p", "2160p"]).ask()
+    if not quality_choice:
+        console.print("No quality selected. The download will not continue.", style="bold red")
+        return None
+    return quality_choice
+
 def get_target_directory(dialog):
+    # Prompt the user to select a target directory for the download
     default_dir = os.path.expanduser("~/Downloads/")
     target_dir = QFileDialog.getExistingDirectory(dialog, "Select the target folder", default_dir)
     if not target_dir:
@@ -107,10 +123,24 @@ def get_target_directory(dialog):
     return target_dir
 
 def progress_hook(d):
+    # Hook to display progress of the download
     if d['status'] == 'finished':
         console.print(f"\nDownload completed: {d['filename']}", style="bold green")
 
-def download_video_or_playlist(url=None, format_choice=None, output_path=None):
+def check_video_quality(url, quality):
+    ydl_opts = {'format': 'best'}
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        info_dict = ydl.extract_info(url, download=False)
+        available_qualities = [f"{f['format_id']} ({f['height']}p)" for f in info_dict['formats'] if f.get('height')]
+        requested_quality = int(quality.replace('p', '').replace('k', '000'))
+        available_heights = [f['height'] for f in info_dict['formats'] if f.get('height')]
+        if requested_quality in available_heights:
+            return True, None
+        else:
+            return False, available_qualities
+
+def download_video_or_playlist(url=None, format_choice=None, quality_choice=None, output_path=None):
+    # Ensure FFmpeg is installed before proceeding
     if not check_ffmpeg_installed():
         install_ffmpeg()
 
@@ -128,11 +158,24 @@ def download_video_or_playlist(url=None, format_choice=None, output_path=None):
         if not format_choice:
             return
 
-    
+    if format_choice == 'mp4':
+        if not quality_choice:
+            quality_choice = get_quality_choice()
+            if not quality_choice:
+                return
+
+        quality_check, available_qualities = check_video_quality(url, quality_choice)
+        if not quality_check:
+            console.print(f"Requested quality {quality_choice} is not available. Available qualities are: {', '.join(available_qualities)}", style="bold yellow")
+            return
+
+        format_option = f'bestvideo[height<={quality_choice.replace("p", "")}]+bestaudio/best'
+    else:
+        format_option = 'bestaudio/best'
+
     outtmpl = ""
     if output_path:
-        outtmpl = output_path 
-
+        outtmpl = output_path
     else:
         target_dir = get_target_directory(dialog)
         if not target_dir:
@@ -140,7 +183,7 @@ def download_video_or_playlist(url=None, format_choice=None, output_path=None):
         outtmpl = os.path.join(target_dir, '%(title)s.%(ext)s')
 
     ydl_opts = {
-        'format': 'bestvideo+bestaudio/best' if format_choice == 'mp4' else 'bestaudio/best',
+        'format': format_option,
         'outtmpl': outtmpl,
         'merge_output_format': 'mp4' if format_choice == 'mp4' else None,
         'postprocessors': [{
@@ -161,14 +204,10 @@ def download_video_or_playlist(url=None, format_choice=None, output_path=None):
         console.print(f"An error occurred: {e}", style="bold red")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download videos or playlists from YouTube in the specified format.")
-    parser.add_argument('-f', '--format', choices=['mp3', 'mp4'], help="Specify the format for download (mp3 or mp4).")
-    parser.add_argument('url', nargs='?', help="The URL of the video or playlist to download.")
-    parser.add_argument("-o", "--output", default=None, help="Path in where to write the output.")
-    args = parser.parse_args()
+    args = parse_args()  # Call the flags from flags.py
 
     if args.url and args.format:
-        download_video_or_playlist(args.url, args.format, args.output)
+        download_video_or_playlist(args.url, args.format, args.quality, args.output)
     else:
         url = get_url()
         if not url:
@@ -176,4 +215,10 @@ if __name__ == "__main__":
         format_choice = get_format_choice()
         if not format_choice:
             exit(1)
-        download_video_or_playlist(url, format_choice)
+        if format_choice == 'mp4':
+            quality_choice = get_quality_choice()
+            if not quality_choice:
+                exit(1)
+        else:
+            quality_choice = None
+        download_video_or_playlist(url, format_choice, quality_choice)
